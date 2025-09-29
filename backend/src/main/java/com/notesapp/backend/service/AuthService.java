@@ -1,5 +1,6 @@
 package com.notesapp.backend.service;
 
+import com.notesapp.backend.dto.ApiResponseDTO;
 import com.notesapp.backend.dto.AuthResponseDTO;
 import com.notesapp.backend.dto.LoginRequestDTO;
 import com.notesapp.backend.dto.RegisterRequestDTO;
@@ -7,6 +8,7 @@ import com.notesapp.backend.model.User;
 import com.notesapp.backend.repository.UserRepository;
 import com.notesapp.backend.security.JwtTokenProvider;
 import com.notesapp.backend.util.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
+    private final EmailService emailService;
 
     public AuthResponseDTO register(RegisterRequestDTO request, HttpServletResponse response){
 
@@ -45,9 +48,15 @@ public class AuthService {
         String jwt = jwtTokenProvider.generateToken(savedUser.getEmail(), savedUser.getId());
 
         cookieUtil.addJwtCookie(response, jwt);
-        // TODO: Send verification email later
+
+        emailService.sendEmailVerification(
+                savedUser.getEmail(),
+                savedUser.getFirstName(),
+                savedUser.getEmailVerificationToken()
+        );
+
         return new AuthResponseDTO(
-                "Registration successful",
+                "Registration successful! Please check your email to verify your account.",
                 savedUser.getId(),
                 savedUser.getEmail(),
                 savedUser.getFirstName(),
@@ -110,6 +119,57 @@ public class AuthService {
 
     public void logout(HttpServletResponse response){
         cookieUtil.clearJwtCookie(response);
+    }
+
+    public ApiResponseDTO verifyEmail(String token){
+        User user = userRepository.findByEmailVerificationToken(token);
+
+        if(user == null){
+            throw new RuntimeException("Invalid email verification token");
+        }
+
+        if(user.getEmailVerificationExpiresAt().isBefore(LocalDateTime.now())){
+            throw new RuntimeException("Verification token has expired");
+        }
+
+        if(user.isEmailVerified()){
+            throw new RuntimeException("Email is already verified");
+        }
+
+        user.setEmailVerified(true);
+        user.setEmailVerificationToken(null);
+        user.setEmailVerificationExpiresAt(null);
+        userRepository.save(user);
+
+        return new ApiResponseDTO(
+                "Email verified successfully!"
+        );
+    }
+
+    public ApiResponseDTO resendVerification(String email){
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        if (user.isEmailVerified()) {
+            throw new RuntimeException("Email is already verified");
+        }
+
+        user.setEmailVerificationToken(UUID.randomUUID().toString());
+        user.setEmailVerificationExpiresAt(LocalDateTime.now().plusHours(24));
+        userRepository.save(user);
+
+        emailService.sendEmailVerification(
+                user.getEmail(),
+                user.getFirstName(),
+                user.getEmailVerificationToken()
+        );
+
+        return new ApiResponseDTO(
+                "Verification email sent successfully!"
+        );
     }
 
 }

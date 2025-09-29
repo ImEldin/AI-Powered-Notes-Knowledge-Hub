@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #e1e1e1; margin: 0; padding: 20px; background-color: #0f0f0f; }
+        .container { max-width: 600px; margin: 0 auto; background: #1a1a1a; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,200,120,0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #00c878 0%, #00a562 100%); color: #000; padding: 40px 30px; text-align: center; }
+        .logo { font-size: 28px; font-weight: 700; margin-bottom: 10px; color: #000; }
+        .subtitle { font-size: 16px; opacity: 0.8; color: #1a1a1a; }
+        .content { padding: 40px 30px; background: #1a1a1a; }
+        .greeting { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #00c878; }
+        .text { color: #e1e1e1; margin-bottom: 15px; }
+        .button { display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #00c878 0%, #00a562 100%); color: #000 !important; text-decoration: none !important; border-radius: 6px; margin: 25px 0; font-weight: 600; text-align: center; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(0,200,120,0.3); }
+        .button:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,200,120,0.4); color: #000 !important; text-decoration: none !important; }
+        .button:visited { color: #000 !important; }
+        .button:active { color: #000 !important; }
+        .link-text { font-size: 14px; color: #00c878; word-break: break-all; background: #2a2a2a; padding: 15px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #00c878; }
+        .footer { background: #111; padding: 30px; text-align: center; border-top: 1px solid #2a2a2a; }
+        .footer-text { color: #888; font-size: 14px; margin: 0; }
+        .warning { background: #2a2a1a; border: 1px solid #00c878; color: #00c878; padding: 15px; border-radius: 4px; margin: 20px 0; border-left: 4px solid #00c878; }
+        .accent { color: #00c878; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo">AI Notes App</div>
+        <div class="subtitle">Knowledge Management Platform</div>
+    </div>
+
+    <div class="content">
+        <div class="greeting">Hello <span th:text="${firstName}">User</span>,</div>
+
+        <p class="text">Welcome to <span class="accent">Notes</span>! We're excited to have you join our knowledge management platform.</p>
+
+        <p class="text">To complete your registration and start using your account, please verify your email address by clicking the button below:</p>
+
+        <div style="text-align: center;">
+            <a th:href="${verificationUrl}" class="button">Verify Email Address</a>
+        </div>
+
+        <div class="warning">
+            <strong>Security Notice:</strong> This verification link will expire in 24 hours for your account security.
+        </div>
+
+        <p class="text">If the button above doesn't work, you can copy and paste the following link into your browser:</p>
+        <div class="link-text" th:text="${verificationUrl}">verification-link</div>
+
+        <p class="text">If you didn't create an account with Notes, please ignore this email and no account will be created.</p>
+
+        <p class="text">Thank you for choosing <span class="accent">Notes</span> for your knowledge management needs.</p>
+    </div>
+
+    <div class="footer">
+        <p class="footer-text">
+            <strong>Notes Team</strong><br>
+            This is an automated message, please do not reply to this email.
+        </p>
+    </div>
+</div>
+</body>
+</html>

@@ -54,4 +54,34 @@ public class EmailService {
             throw new RuntimeException("Failed to send verification email", e);
         }
     }
+    public void sendPasswordReset(String toEmail, String firstName, String resetToken) {
+        try {
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(toEmail);
+            helper.setFrom(fromEmail, fromName);
+            helper.setSubject("Reset Your Password - Notes App");
+
+            String resetUrl = "http://localhost:8080/reset-password?token=" + resetToken;
+
+            Context context = new Context();
+            context.setVariable("firstName", firstName);
+            context.setVariable("resetUrl", resetUrl);
+
+            String htmlContent = templateEngine.process("password-reset", context);
+            helper.setText(htmlContent, true);
+
+            javaMailSender.send(message);
+            log.info("Password reset email sent to: {}", toEmail);
+
+        } catch (MessagingException e) {
+            log.error("Failed to send password reset email to: {}", toEmail, e);
+            throw new RuntimeException("Failed to send password reset email", e);
+        } catch (Exception e) {
+            log.error("Unexpected error sending password reset email to: {}", toEmail, e);
+            throw new RuntimeException("Failed to send password reset email", e);
+        }
+    }
+
 }

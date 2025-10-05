@@ -8,7 +8,6 @@ import com.notesapp.backend.model.User;
 import com.notesapp.backend.repository.UserRepository;
 import com.notesapp.backend.security.JwtTokenProvider;
 import com.notesapp.backend.util.CookieUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -169,6 +168,51 @@ public class AuthService {
 
         return new ApiResponseDTO(
                 "Verification email sent successfully!"
+        );
+    }
+
+    public ApiResponseDTO forgotPassword(String email) {
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            return new ApiResponseDTO(
+                    "If an account with that email exists, we've sent a password reset link."
+            );
+        }
+
+        user.setPasswordResetToken(UUID.randomUUID().toString());
+        user.setPasswordResetExpiresAt(LocalDateTime.now().plusHours(1));
+        userRepository.save(user);
+
+        emailService.sendPasswordReset(
+                user.getEmail(),
+                user.getFirstName(),
+                user.getPasswordResetToken()
+        );
+
+        return new ApiResponseDTO(
+                "If an account with that email exists, we've sent a password reset link."
+        );
+    }
+
+    public ApiResponseDTO resetPassword(String token, String newPassword) {
+        User user = userRepository.findByPasswordResetToken(token);
+
+        if (user == null) {
+            throw new RuntimeException("Invalid or expired reset token");
+        }
+
+        if (user.getPasswordResetExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Reset token has expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetExpiresAt(null);
+        userRepository.save(user);
+
+        return new ApiResponseDTO(
+                "Password reset successfully!"
         );
     }
 

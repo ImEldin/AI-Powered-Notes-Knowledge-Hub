@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmailVerificationRequestDTO {
+public class ForgotPasswordDTO {
 
     @NotBlank(message = "Email is required")
     @Size(max = 255, message = "Email must not exceed 255 characters")

@@ -85,6 +85,10 @@ public class User {
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.USER;
+
     public User(String email, String password, String firstName, String lastName) {
         this.email = email;
         this.password = password;

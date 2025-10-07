@@ -1,9 +1,11 @@
 package com.notesapp.backend.service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.notesapp.backend.dto.ApiResponseDTO;
 import com.notesapp.backend.dto.AuthResponseDTO;
 import com.notesapp.backend.dto.LoginRequestDTO;
 import com.notesapp.backend.dto.RegisterRequestDTO;
+import com.notesapp.backend.model.AuthProvider;
 import com.notesapp.backend.model.User;
 import com.notesapp.backend.repository.UserRepository;
 import com.notesapp.backend.security.JwtTokenProvider;
@@ -25,8 +27,11 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final CookieUtil cookieUtil;
     private final EmailService emailService;
+    private final GoogleOAuthService googleOAuthService;
 
     public AuthResponseDTO register(RegisterRequestDTO request, HttpServletResponse response){
+
+        String displayName = request.getFirstName() + " " + request.getLastName();
 
         if(userRepository.findByEmail(request.getEmail()) != null){
             throw new RuntimeException("Email already in use!");
@@ -36,7 +41,8 @@ public class AuthService {
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
                 request.getFirstName(),
-                request.getLastName()
+                request.getLastName(),
+                displayName
         );
 
         user.setEmailVerificationToken(UUID.randomUUID().toString());
@@ -69,6 +75,10 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null) {
             throw new RuntimeException("Invalid email or password");
+        }
+
+        if(user.getProvider() != AuthProvider.LOCAL){
+            throw new RuntimeException("Authentication failed: This account is linked via OAuth and cannot use password login.");
         }
 
         if (!user.isActive()) {
@@ -114,6 +124,48 @@ public class AuthService {
                 user.isEmailVerified()
         );
 
+    }
+
+    public AuthResponseDTO googleLogin(String idToken, HttpServletResponse response) {
+        GoogleIdToken.Payload payload = googleOAuthService.verifyGoogleToken(idToken);
+
+        String email = payload.getEmail();
+        String firstName = (String) payload.get("given_name");
+        String lastName = (String) payload.get("family_name");
+        String googleUserId = payload.getSubject();
+        String avatarUrl = (String) payload.get("picture");
+        String displayName = firstName + " " + lastName;
+
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setEmailVerified(true);
+            user.setProvider(AuthProvider.GOOGLE);
+            user.setProviderId(googleUserId);
+            user.setAvatarUrl(avatarUrl);
+            user.setDisplayName(displayName);
+            user.setPassword(null);
+        }
+
+        user.setLastLoginAt(LocalDateTime.now());
+        user = userRepository.save(user);
+
+        String jwt = jwtTokenProvider.generateToken(user.getEmail(), user.getId());
+
+        cookieUtil.addJwtCookie(response, jwt);
+
+        return new AuthResponseDTO(
+                "Google login successful!",
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.isEmailVerified()
+        );
     }
 
     public void logout(HttpServletResponse response){

@@ -5,6 +5,7 @@ import com.notesapp.backend.dto.ApiResponseDTO;
 import com.notesapp.backend.dto.AuthResponseDTO;
 import com.notesapp.backend.dto.LoginRequestDTO;
 import com.notesapp.backend.dto.RegisterRequestDTO;
+import com.notesapp.backend.exception.*;
 import com.notesapp.backend.model.AuthProvider;
 import com.notesapp.backend.model.User;
 import com.notesapp.backend.repository.UserRepository;
@@ -34,7 +35,7 @@ public class AuthService {
         String displayName = request.getFirstName() + " " + request.getLastName();
 
         if(userRepository.findByEmail(request.getEmail()) != null){
-            throw new RuntimeException("Email already in use!");
+            throw new UserAlreadyExistsException();
         }
 
         User user = new User(
@@ -74,19 +75,21 @@ public class AuthService {
 
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException();
         }
 
         if(user.getProvider() != AuthProvider.LOCAL){
-            throw new RuntimeException("Authentication failed: This account is linked via OAuth and cannot use password login.");
+            throw new OAuthAccountConflictException(
+                    "This account is linked via " + user.getProvider() + " and cannot use password login."
+            );
         }
 
         if (!user.isActive()) {
-            throw new RuntimeException("Account is deactivated");
+            throw new UserDeactivatedException();
         }
 
         if (user.isLocked() && user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now())) {
-            throw new RuntimeException("Account is temporarily locked. Try again later.");
+            throw new AccountLockedException();
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -99,7 +102,7 @@ public class AuthService {
             }
 
             userRepository.save(user);
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException();
         }
 
         if (user.getFailedLoginAttempts() > 0) {
@@ -176,15 +179,15 @@ public class AuthService {
         User user = userRepository.findByEmailVerificationToken(token);
 
         if(user == null){
-            throw new RuntimeException("Invalid email verification token");
+            throw new EmailVerificationTokenInvalidException();
         }
 
         if(user.getEmailVerificationExpiresAt().isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Verification token has expired");
+            throw new EmailVerificationTokenExpiredException();
         }
 
         if(user.isEmailVerified()){
-            throw new RuntimeException("Email is already verified");
+            throw new EmailAlreadyVerifiedException();
         }
 
         user.setEmailVerified(true);
@@ -201,11 +204,11 @@ public class AuthService {
         User user = userRepository.findByEmail(email);
 
         if (user == null) {
-            throw new RuntimeException("User not found");
+            throw new UserNotFoundException();
         }
 
         if (user.isEmailVerified()) {
-            throw new RuntimeException("Email is already verified");
+            throw new EmailAlreadyVerifiedException();
         }
 
         user.setEmailVerificationToken(UUID.randomUUID().toString());
@@ -251,11 +254,11 @@ public class AuthService {
         User user = userRepository.findByPasswordResetToken(token);
 
         if (user == null) {
-            throw new RuntimeException("Invalid or expired reset token");
+            throw new PasswordResetTokenInvalidException();
         }
 
         if (user.getPasswordResetExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Reset token has expired");
+            throw new PasswordResetTokenExpiredException();
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

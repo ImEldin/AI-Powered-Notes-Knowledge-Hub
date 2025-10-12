@@ -1,5 +1,6 @@
 package com.notesapp.backend.service;
 
+import com.notesapp.backend.exception.EmailServiceException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -48,10 +49,10 @@ public class EmailService {
 
         } catch (MessagingException e) {
             log.error("Failed to send email verification to: {}", toEmail, e);
-            throw new RuntimeException("Failed to send verification email", e);
+            throw new EmailServiceException("Failed to send verification email", e);
         } catch (Exception e) {
             log.error("Unexpected error sending email to: {}", toEmail, e);
-            throw new RuntimeException("Failed to send verification email", e);
+            throw new EmailServiceException("Failed to send verification email", e);
         }
     }
     public void sendPasswordReset(String toEmail, String firstName, String resetToken) {
@@ -77,10 +78,10 @@ public class EmailService {
 
         } catch (MessagingException e) {
             log.error("Failed to send password reset email to: {}", toEmail, e);
-            throw new RuntimeException("Failed to send password reset email", e);
+            throw new EmailServiceException("Failed to send password reset email", e);
         } catch (Exception e) {
             log.error("Unexpected error sending password reset email to: {}", toEmail, e);
-            throw new RuntimeException("Failed to send password reset email", e);
+            throw new EmailServiceException("Failed to send password reset email", e);
         }
     }
 

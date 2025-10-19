@@ -16,17 +16,29 @@ public class CookieUtil {
     private int cookieExpiration;
 
     public void addJwtCookie(HttpServletResponse response, String token) {
-        Cookie cookie = new Cookie(cookieName, token);
+        addCookie(response, cookieName, token, cookieExpiration);
+    }
+
+    public void clearJwtCookie(HttpServletResponse response) {
+        clearCookie(response, cookieName);
+    }
+
+    public String getJwtFromCookie(HttpServletRequest request) {
+        return getCookieValue(request, cookieName);
+    }
+
+    public void addCookie(HttpServletResponse response, String name, String value, int maxAgeSeconds) {
+        Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
         cookie.setPath("/");
-        cookie.setMaxAge(cookieExpiration);
+        cookie.setMaxAge(maxAgeSeconds);
         cookie.setAttribute("SameSite", "Lax");
         response.addCookie(cookie);
     }
 
-    public void clearJwtCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie(cookieName, "");
+    public void clearCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, "");
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
         cookie.setPath("/");
@@ -34,14 +46,15 @@ public class CookieUtil {
         response.addCookie(cookie);
     }
 
-    public String getJwtFromCookie(HttpServletRequest request) {
+    public String getCookieValue(HttpServletRequest request, String name) {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
-                if (cookieName.equals(cookie.getName())) {
+                if (name.equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }
         }
         return null;
     }
+
 }

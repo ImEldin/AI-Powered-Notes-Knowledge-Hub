@@ -3,6 +3,7 @@ package com.notesapp.backend.controller;
 import com.notesapp.backend.dto.AuthResponseDTO;
 import com.notesapp.backend.dto.GoogleLoginRequestDTO;
 import com.notesapp.backend.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,9 @@ public class GoogleAuthController {
     @PostMapping("/google-login")
     public ResponseEntity<AuthResponseDTO> googleLogin(
             @Valid @RequestBody GoogleLoginRequestDTO request,
-            HttpServletResponse response) {
-        AuthResponseDTO authResponse = authService.googleLogin(request.getIdToken(), response);
+            HttpServletResponse response,
+            HttpServletRequest httpRequest) {
+        AuthResponseDTO authResponse = authService.googleLogin(request.getIdToken(), response, httpRequest);
         return ResponseEntity.ok(authResponse);
     }
 }

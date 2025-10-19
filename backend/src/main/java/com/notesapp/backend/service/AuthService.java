@@ -11,6 +11,7 @@ import com.notesapp.backend.model.User;
 import com.notesapp.backend.repository.UserRepository;
 import com.notesapp.backend.security.JwtTokenProvider;
 import com.notesapp.backend.util.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,8 +30,9 @@ public class AuthService {
     private final CookieUtil cookieUtil;
     private final EmailService emailService;
     private final GoogleOAuthService googleOAuthService;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthResponseDTO register(RegisterRequestDTO request, HttpServletResponse response){
+    public AuthResponseDTO register(RegisterRequestDTO request, HttpServletResponse response, HttpServletRequest httpRequest){
 
         String displayName = request.getFirstName() + " " + request.getLastName();
 
@@ -55,6 +57,15 @@ public class AuthService {
 
         cookieUtil.addJwtCookie(response, jwt);
 
+        boolean rememberMe = request.getRememberMe() != null && request.getRememberMe();
+        String refreshToken = refreshTokenService.createToken(
+                savedUser.getId(),
+                rememberMe,
+                httpRequest.getHeader("User-Agent")
+        );
+        int maxAge = rememberMe ? 30 * 24 * 3600 : 7 * 24 * 3600;
+        cookieUtil.addCookie(response, "refresh_token", refreshToken, maxAge);
+
         emailService.sendEmailVerification(
                 savedUser.getEmail(),
                 savedUser.getFirstName(),
@@ -71,7 +82,7 @@ public class AuthService {
         );
     }
 
-    public AuthResponseDTO login(LoginRequestDTO request, HttpServletResponse response){
+    public AuthResponseDTO login(LoginRequestDTO request, HttpServletResponse response, HttpServletRequest httpRequest){
 
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null) {
@@ -118,6 +129,15 @@ public class AuthService {
 
         cookieUtil.addJwtCookie(response, jwt);
 
+        boolean rememberMe = request.getRememberMe() != null && request.getRememberMe();
+        String refreshToken = refreshTokenService.createToken(
+                user.getId(),
+                rememberMe,
+                httpRequest.getHeader("User-Agent")
+        );
+        int maxAge = rememberMe ? 30 * 24 * 3600 : 7 * 24 * 3600;
+        cookieUtil.addCookie(response, "refresh_token", refreshToken, maxAge);
+
         return new AuthResponseDTO(
                 "Login successful",
                 user.getId(),
@@ -129,7 +149,7 @@ public class AuthService {
 
     }
 
-    public AuthResponseDTO googleLogin(String idToken, HttpServletResponse response) {
+    public AuthResponseDTO googleLogin(String idToken, HttpServletResponse response,  HttpServletRequest httpRequest) {
         GoogleIdToken.Payload payload = googleOAuthService.verifyGoogleToken(idToken);
 
         String email = payload.getEmail();
@@ -161,6 +181,14 @@ public class AuthService {
 
         cookieUtil.addJwtCookie(response, jwt);
 
+        String refreshToken = refreshTokenService.createToken(
+                user.getId(),
+                true,
+                httpRequest.getHeader("User-Agent")
+        );
+        cookieUtil.addCookie(response, "refresh_token", refreshToken, 30 * 24 * 3600);
+
+
         return new AuthResponseDTO(
                 "Google login successful!",
                 user.getId(),
@@ -171,8 +199,14 @@ public class AuthService {
         );
     }
 
-    public void logout(HttpServletResponse response){
+    public void logout(HttpServletResponse response,  HttpServletRequest httpRequest){
+        String refreshToken = cookieUtil.getCookieValue(httpRequest, "refresh_token");
+        if (refreshToken != null) {
+            refreshTokenService.revoke(refreshToken);
+        }
+
         cookieUtil.clearJwtCookie(response);
+        cookieUtil.clearCookie(response, "refresh_token");
     }
 
     public ApiResponseDTO verifyEmail(String token){

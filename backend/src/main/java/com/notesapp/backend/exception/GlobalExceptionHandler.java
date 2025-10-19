@@ -164,6 +164,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(ex.getMessage()));
     }
 
+    @ExceptionHandler(RefreshTokenMissingException.class)
+    public ResponseEntity<ApiResponseDTO> handleRefreshTokenMissing(RefreshTokenMissingException ex) {
+        log.warn("Refresh token missing");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDTO(ex.getMessage()));
+    }
+
+    @ExceptionHandler(RefreshTokenInvalidException.class)
+    public ResponseEntity<ApiResponseDTO> handleRefreshTokenInvalid(RefreshTokenInvalidException ex) {
+        log.warn("Refresh token invalid or expired");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponseDTO(ex.getMessage()));
+    }
+
+    @ExceptionHandler(SessionNotFoundException.class)
+    public ResponseEntity<ApiResponseDTO> handleSessionNotFound(SessionNotFoundException ex) {
+        log.warn("Session not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponseDTO(ex.getMessage()));
+    }
+
+    @ExceptionHandler(UnauthorizedSessionAccessException.class)
+    public ResponseEntity<ApiResponseDTO> handleUnauthorizedSessionAccess(UnauthorizedSessionAccessException ex) {
+        log.warn("Unauthorized session access attempt");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponseDTO(ex.getMessage()));
+    }
+
     //-------------------------------------------------------------------------------------------
 
     @ExceptionHandler(Exception.class)

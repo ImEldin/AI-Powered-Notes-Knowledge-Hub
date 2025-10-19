@@ -20,4 +20,6 @@ public class LoginRequestDTO {
     @NotBlank(message = "Password is required")
     @Size(max = 64, message = "Password must not exceed 64 characters")
     private String password;
+
+    private Boolean rememberMe;
 }

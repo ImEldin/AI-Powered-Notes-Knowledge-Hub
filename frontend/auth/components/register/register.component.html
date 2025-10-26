@@ -1,0 +1,90 @@
+<div class="register-container">
+  <h2>Register</h2>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <!-- Email -->
+    <div>
+      <label>Email:</label>
+      <input type="email" formControlName="email" />
+      <div
+        *ngIf="
+          registerForm.get('email')?.invalid &&
+          registerForm.get('email')?.touched
+        "
+      >
+        {{ getEmailError() }}
+      </div>
+    </div>
+
+    <!-- First Name -->
+    <div>
+      <label>First Name:</label>
+      <input type="text" formControlName="firstName" />
+      <div
+        *ngIf="
+          registerForm.get('firstName')?.invalid &&
+          registerForm.get('firstName')?.touched
+        "
+      >
+        {{ getFirstNameError() }}
+      </div>
+    </div>
+
+    <!-- Last Name -->
+    <div>
+      <label>Last Name:</label>
+      <input type="text" formControlName="lastName" />
+      <div
+        *ngIf="
+          registerForm.get('lastName')?.invalid &&
+          registerForm.get('lastName')?.touched
+        "
+      >
+        {{ getLastNameError() }}
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div>
+      <label>Password:</label>
+      <input
+        [type]="hidePassword ? 'password' : 'text'"
+        formControlName="password"
+      />
+      <button type="button" (click)="togglePasswordVisibility()">
+        {{ hidePassword ? "Show" : "Hide" }}
+      </button>
+      <div
+        *ngIf="
+          registerForm.get('password')?.invalid &&
+          registerForm.get('password')?.touched
+        "
+      >
+        {{ getPasswordError() }}
+      </div>
+    </div>
+
+    <!-- Confirm Password -->
+    <div>
+      <label>Confirm Password:</label>
+      <input
+        [type]="hideConfirmPassword ? 'password' : 'text'"
+        formControlName="confirmPassword"
+      />
+      <button type="button" (click)="toggleConfirmPasswordVisibility()">
+        {{ hideConfirmPassword ? "Show" : "Hide" }}
+      </button>
+      <div *ngIf="registerForm.get('confirmPassword')?.touched">
+        {{ getConfirmPasswordError() }}
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" [disabled]="loading || registerForm.invalid">
+      <span *ngIf="loading">Loading...</span>
+      <span *ngIf="!loading">Register</span>
+    </button>
+  </form>
+
+  <p>Already have an account? <a routerLink="/auth/login">Login</a></p>
+</div>

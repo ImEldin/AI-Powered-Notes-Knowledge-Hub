@@ -6,7 +6,7 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,6 +15,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../service/auth.service';
+import { AuthStateService } from '../../service/auth-state.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -29,6 +31,7 @@ import { AuthService } from '../../service/auth.service';
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatIconModule,
+    RouterModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
@@ -42,7 +45,9 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private authState: AuthStateService,
+    private router: Router,
+    private notificationService: NotificationService
   ) {
     this.loginForm = this.fb.group({
       email: [
@@ -65,11 +70,23 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
-        console.log('Login successful:', response);
+        if (!response.emailVerified) {
+          this.notificationService.info('Please verify your email to continue');
+          sessionStorage.setItem(
+            'pendingVerificationEmail',
+            this.loginForm.value.email
+          );
+          this.authState.setAuthenticated(true);
+          this.router.navigate(['/auth/verify-email']);
+          this.loading = false;
+          return;
+        }
+        this.notificationService.success('Login successful!');
+        this.authState.setAuthenticated(true);
         this.router.navigate(['/dashboard']);
       },
       error: (error) => {
-        console.error('Login error:', error);
+        this.notificationService.error(error.error?.message || 'Login failed');
         this.errorMessage =
           error.error?.message || 'Login failed. Please try again.';
         this.loading = false;

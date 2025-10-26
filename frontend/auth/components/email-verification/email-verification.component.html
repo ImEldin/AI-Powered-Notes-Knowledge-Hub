@@ -1,0 +1,23 @@
+<div class="verification-container">
+  <div class="verification-card">
+    <div *ngIf="verifying" class="icon">
+      <span>⏳</span>
+      <h2>Verifying...</h2>
+      <p>{{ message }}</p>
+    </div>
+
+    <div *ngIf="!verifying && success" class="icon success">
+      <span>✅</span>
+      <h2>Email Verified!</h2>
+      <p class="message">{{ message }}</p>
+      <p class="redirect-info">Redirecting to dashboard...</p>
+    </div>
+
+    <div *ngIf="!verifying && !success" class="icon error">
+      <span>❌</span>
+      <h2>Verification Failed</h2>
+      <p class="message">{{ message }}</p>
+      <button type="button" (click)="goToLogin()">Back to Login</button>
+    </div>
+  </div>
+</div>

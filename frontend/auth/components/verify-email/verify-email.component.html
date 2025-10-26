@@ -1,0 +1,29 @@
+<div class="verify-email-container">
+  <div class="verify-email-card">
+    <h2>Verify Your Email</h2>
+
+    <p class="message">
+      We've sent a verification email to <strong>{{ email }}</strong>
+    </p>
+
+    <p class="instructions">
+      Please check your inbox and click the verification link to activate your
+      account.
+    </p>
+
+    <div class="actions">
+      <button type="button" (click)="resendEmail()" [disabled]="resending">
+        <span *ngIf="!resending">Resend Verification Email</span>
+        <span *ngIf="resending">Sending...</span>
+      </button>
+
+      <button type="button" class="secondary" (click)="logout()">
+        Back to Login
+      </button>
+    </div>
+
+    <p class="help-text">
+      Didn't receive the email? Check your spam folder or click resend.
+    </p>
+  </div>
+</div>

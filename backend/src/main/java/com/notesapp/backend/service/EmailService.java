@@ -26,6 +26,9 @@ public class EmailService {
     @Value("${app.mail.mail_from_name}")
     private String fromName;
 
+    @Value("${app.frontend.verification-url}")
+    private String frontendVerificationUrl;
+
     public void sendEmailVerification(String toEmail, String firstName, String verificationToken) {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
@@ -35,7 +38,7 @@ public class EmailService {
             helper.setFrom(fromEmail, fromName);
             helper.setSubject("Verify Your Email - Notes App");
 
-            String verificationUrl = "http://localhost:8080/api/auth/verify-email?token=" + verificationToken;
+            String verificationUrl = frontendVerificationUrl + "?token=" + verificationToken;
 
             Context context = new Context();
             context.setVariable("firstName", firstName);

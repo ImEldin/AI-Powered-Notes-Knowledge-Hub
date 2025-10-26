@@ -53,7 +53,7 @@ public class AuthService {
 
         User savedUser = userRepository.save(user);
 
-        String jwt = jwtTokenProvider.generateToken(savedUser.getEmail(), savedUser.getId());
+        String jwt = jwtTokenProvider.generateToken(savedUser.getEmail(), savedUser.getId(), savedUser.getRole());
 
         cookieUtil.addJwtCookie(response, jwt);
 
@@ -125,7 +125,7 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
 
-        String jwt = jwtTokenProvider.generateToken(user.getEmail(), user.getId());
+        String jwt = jwtTokenProvider.generateToken(user.getEmail(), user.getId(), user.getRole());
 
         cookieUtil.addJwtCookie(response, jwt);
 
@@ -177,7 +177,7 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
         user = userRepository.save(user);
 
-        String jwt = jwtTokenProvider.generateToken(user.getEmail(), user.getId());
+        String jwt = jwtTokenProvider.generateToken(user.getEmail(), user.getId(), user.getRole());
 
         cookieUtil.addJwtCookie(response, jwt);
 

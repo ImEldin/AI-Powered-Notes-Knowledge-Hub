@@ -18,8 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.notesapp.backend.model.RefreshToken;
 
@@ -63,12 +62,10 @@ public class AuthController {
 
     @PostMapping("/logout-all")
     public ResponseEntity<ApiResponseDTO> logoutAll(
-            HttpServletRequest httpRequest,
+            Authentication authentication,
             HttpServletResponse response) {
 
-        String jwt = cookieUtil.getJwtFromCookie(httpRequest);
-
-        Long userId = jwtTokenProvider.getUserIdFromToken(jwt);
+        Long userId = (Long) authentication.getPrincipal();
 
         refreshTokenService.revokeAllForUser(userId);
 
@@ -111,7 +108,7 @@ public class AuthController {
         int maxAge = rememberMe ? 30 * 24 * 3600 : 7 * 24 * 3600;
         cookieUtil.addCookie(response, "refresh_token", newRawRefreshToken, maxAge);
 
-        String jwt = jwtTokenProvider.generateToken(user.getEmail(), user.getId());
+        String jwt = jwtTokenProvider.generateToken(user.getEmail(), user.getId(), user.getRole());
         cookieUtil.addJwtCookie(response, jwt);
 
         return ResponseEntity.ok(new AuthResponseDTO(

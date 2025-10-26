@@ -1,0 +1,59 @@
+<div class="login-container">
+  <h2>Login</h2>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <!-- Email -->
+    <div>
+      <label>Email:</label>
+      <input type="email" formControlName="email" />
+      <div
+        *ngIf="
+          loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+        "
+      >
+        {{ getEmailError() }}
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div>
+      <label>Password:</label>
+      <input
+        [type]="hidePassword ? 'password' : 'text'"
+        formControlName="password"
+      />
+      <button type="button" (click)="togglePasswordVisibility()">
+        {{ hidePassword ? "Show" : "Hide" }}
+      </button>
+      <div
+        *ngIf="
+          loginForm.get('password')?.invalid &&
+          loginForm.get('password')?.touched
+        "
+      >
+        {{ getPasswordError() }}
+      </div>
+    </div>
+
+    <!-- Remember Me -->
+    <div>
+      <label>
+        <input type="checkbox" formControlName="rememberMe" />
+        Remember me
+      </label>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" style="color: red">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" [disabled]="loading">
+      <span *ngIf="loading">Loading...</span>
+      <span *ngIf="!loading">Login</span>
+    </button>
+  </form>
+
+  <p>Don't have an account? <a routerLink="/auth/register">Register</a></p>
+</div>

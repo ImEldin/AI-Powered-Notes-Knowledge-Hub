@@ -23,7 +23,7 @@ export class VerifyEmailComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.email = sessionStorage.getItem('pendingVerificationEmail') || '';
 
@@ -33,7 +33,7 @@ export class VerifyEmailComponent implements OnInit {
     }
   }
 
-  resendEmail(): void {
+  resendEmail() {
     this.resending = true;
 
     this.authService.resendVerification({ email: this.email }).subscribe({
@@ -53,7 +53,7 @@ export class VerifyEmailComponent implements OnInit {
     });
   }
 
-  logout(): void {
+  logout() {
     this.authService.logout().subscribe({
       next: () => {
         if (isPlatformBrowser(this.platformId)) {

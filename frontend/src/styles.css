@@ -17,3 +17,11 @@
   --mdc-snackbar-container-color: #323232;
   --mat-snack-bar-button-color: #ffffff;
 }
+
+router-outlet + * {
+  visibility: hidden;
+}
+
+router-outlet + *.navigation-complete {
+  visibility: visible;
+}

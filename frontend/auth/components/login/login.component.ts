@@ -59,7 +59,7 @@ export class LoginComponent {
     });
   }
 
-  onSubmit(): void {
+  onSubmit() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -70,34 +70,49 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
-        if (!response.emailVerified) {
-          this.notificationService.info('Please verify your email to continue');
-          sessionStorage.setItem(
-            'pendingVerificationEmail',
-            this.loginForm.value.email
-          );
-          this.authState.setAuthenticated(true);
-          this.router.navigate(['/auth/verify-email']);
-          this.loading = false;
-          return;
-        }
-        this.notificationService.success('Login successful!');
-        this.authState.setAuthenticated(true);
-        this.router.navigate(['/dashboard']);
+        setTimeout(() => {
+          this.authService.getCurrentUser().subscribe({
+            next: (user) => {
+              this.authState.setAuthenticated(true);
+              this.authState.setUserRole(user.role);
+              localStorage.setItem(
+                'emailVerified',
+                user.emailVerified.toString()
+              );
+              if (!user.emailVerified) {
+                this.notificationService.info(
+                  'Please verify your email to continue'
+                );
+                sessionStorage.setItem(
+                  'pendingVerificationEmail',
+                  this.loginForm.value.email
+                );
+                this.router.navigate(['/auth/verify-email']);
+              } else {
+                this.notificationService.success('Login successful!');
+                this.router.navigate(['/dashboard']);
+              }
+
+              this.loading = false;
+            },
+            error: () => {
+              this.loading = false;
+              this.notificationService.error(
+                'Failed to load user data. Please try logging in again.'
+              );
+              this.authState.setAuthenticated(false);
+            },
+          });
+        }, 100);
       },
       error: (error) => {
         this.notificationService.error(error.error?.message || 'Login failed');
-        this.errorMessage =
-          error.error?.message || 'Login failed. Please try again.';
-        this.loading = false;
-      },
-      complete: () => {
         this.loading = false;
       },
     });
   }
 
-  getEmailError(): string {
+  getEmailError() {
     const emailControl = this.loginForm.get('email');
     if (emailControl?.hasError('required')) {
       return 'Email is required';
@@ -111,7 +126,7 @@ export class LoginComponent {
     return '';
   }
 
-  getPasswordError(): string {
+  getPasswordError() {
     const passwordControl = this.loginForm.get('password');
     if (passwordControl?.hasError('required')) {
       return 'Password is required';
@@ -122,7 +137,7 @@ export class LoginComponent {
     return '';
   }
 
-  togglePasswordVisibility(): void {
+  togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
   }
 }

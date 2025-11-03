@@ -36,7 +36,7 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
@@ -58,12 +58,12 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  verifyEmail(token: string): void {
+  verifyEmail(token: string) {
     if (this.hasVerified) {
       return;
     }
@@ -86,9 +86,26 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
 
           sessionStorage.removeItem('pendingVerificationEmail');
 
-          setTimeout(() => {
-            this.router.navigate(['/dashboard']);
-          }, 2000);
+          this.authService.getCurrentUser().subscribe({
+            next: (user) => {
+              this.authState.setAuthenticated(true);
+              this.authState.setUserRole(user.role);
+              localStorage.setItem(
+                'emailVerified',
+                user.emailVerified.toString()
+              );
+
+              setTimeout(() => {
+                this.router.navigate(['/dashboard']);
+              }, 2000);
+            },
+            error: () => {
+              this.notification.info('Please log in to continue');
+              setTimeout(() => {
+                this.router.navigate(['/auth/login']);
+              }, 2000);
+            },
+          });
         },
         error: (error) => {
           this.verifying = false;
@@ -102,7 +119,7 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
       });
   }
 
-  goToLogin(): void {
+  goToLogin() {
     this.router.navigate(['/auth/login']);
   }
 }

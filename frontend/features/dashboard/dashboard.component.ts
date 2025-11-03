@@ -18,7 +18,7 @@ export class DashboardComponent {
     private notificationService: NotificationService
   ) {}
 
-  logout(): void {
+  logout() {
     this.authService.logout().subscribe({
       next: () => {
         this.authState.setAuthenticated(false);

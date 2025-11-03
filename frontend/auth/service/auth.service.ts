@@ -20,19 +20,25 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  register(request: RegisterRequest): Observable<AuthResponse> {
+  getCurrentUser() {
+    return this.http.get<AuthResponse>(`${this.apiUrl}/me`, {
+      withCredentials: true,
+    });
+  }
+
+  register(request: RegisterRequest) {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, request, {
       withCredentials: true,
     });
   }
 
-  login(request: LoginRequest): Observable<AuthResponse> {
+  login(request: LoginRequest) {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, request, {
       withCredentials: true,
     });
   }
 
-  googleLogin(request: GoogleLoginRequest): Observable<AuthResponse> {
+  googleLogin(request: GoogleLoginRequest) {
     return this.http.post<AuthResponse>(
       `${this.apiUrl}/google-login`,
       request,
@@ -81,7 +87,7 @@ export class AuthService {
     );
   }
 
-  deleteSession(sessionId: string): Observable<ApiResponse> {
+  deleteSession(sessionId: string) {
     return this.http.delete<ApiResponse>(
       `${environment.apiUrl}/user/sessions/${sessionId}`,
       {
@@ -90,29 +96,27 @@ export class AuthService {
     );
   }
 
-  verifyEmail(token: string): Observable<ApiResponse> {
+  verifyEmail(token: string) {
     return this.http.get<ApiResponse>(
       `${this.apiUrl}/verify-email?token=${token}`
     );
   }
 
-  resendVerification(
-    request: EmailVerificationRequest
-  ): Observable<ApiResponse> {
+  resendVerification(request: EmailVerificationRequest) {
     return this.http.post<ApiResponse>(
       `${this.apiUrl}/resend-verification`,
       request
     );
   }
 
-  forgotPassword(request: ForgotPasswordRequest): Observable<ApiResponse> {
+  forgotPassword(request: ForgotPasswordRequest) {
     return this.http.post<ApiResponse>(
       `${this.apiUrl}/forgot-password`,
       request
     );
   }
 
-  resetPassword(request: ResetPassword): Observable<ApiResponse> {
+  resetPassword(request: ResetPassword) {
     return this.http.post<ApiResponse>(
       `${this.apiUrl}/reset-password`,
       request

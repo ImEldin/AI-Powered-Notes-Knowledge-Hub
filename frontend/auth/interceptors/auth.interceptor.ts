@@ -13,10 +13,28 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        notificationService.error('Session expired. Please login again.');
+        const wasAuthenticated = authState.isLoggedIn();
+
         authState.setAuthenticated(false);
-        router.navigate(['/auth/login']);
+        localStorage.removeItem('emailVerified');
+        sessionStorage.removeItem('pendingVerificationEmail');
+
+        if (wasAuthenticated) {
+          notificationService.error('Session expired. Please login again.');
+          router.navigate(['/auth/login']);
+        }
       }
+
+      if (error.status === 403) {
+        notificationService.error(
+          'You do not have permission to access this resource.'
+        );
+      }
+
+      if (error.status >= 500) {
+        notificationService.error('Server error. Please try again later.');
+      }
+
       return throwError(() => error);
     })
   );

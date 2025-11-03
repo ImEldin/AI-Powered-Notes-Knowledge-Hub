@@ -1,13 +1,14 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { LoginComponent } from '../../auth/components/login/login.component';
 import { DashboardComponent } from '../../features/dashboard/dashboard.component';
 import { AuthGuard } from '../../auth/guards/auth.guard';
 import { RegisterComponent } from '../../auth/components/register/register.component';
 import { VerifyEmailComponent } from '../../auth/components/verify-email/verify-email.component';
 import { EmailVerificationComponent } from '../../auth/components/email-verification/email-verification.component';
+import { emailVerifiedGuard } from '../../auth/guards/email-verified.guard';
+import { RoleGuard } from '../../auth/guards/role.guard';
 
-const routes: Routes = [
+export const routes: Routes = [
   {
     path: '',
     redirectTo: '/auth/login',
@@ -33,12 +34,7 @@ const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [AuthGuard],
+    canActivate: [AuthGuard, emailVerifiedGuard, RoleGuard],
+    data: { roles: ['USER', 'ADMIN'] },
   },
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}

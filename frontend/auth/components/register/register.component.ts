@@ -108,7 +108,7 @@ export class RegisterComponent {
     });
   }
 
-  getFirstNameError(): string {
+  getFirstNameError() {
     const control = this.registerForm.get('firstName');
     if (control?.hasError('required')) return 'First name is required';
     if (control?.hasError('maxlength'))
@@ -116,7 +116,7 @@ export class RegisterComponent {
     return '';
   }
 
-  getLastNameError(): string {
+  getLastNameError() {
     const control = this.registerForm.get('lastName');
     if (control?.hasError('required')) return 'Last name is required';
     if (control?.hasError('maxlength'))
@@ -124,7 +124,7 @@ export class RegisterComponent {
     return '';
   }
 
-  getEmailError(): string {
+  getEmailError() {
     const control = this.registerForm.get('email');
     if (control?.hasError('required')) return 'Email is required';
     if (control?.hasError('email')) return 'Email should be valid';
@@ -133,7 +133,7 @@ export class RegisterComponent {
     return '';
   }
 
-  getPasswordError(): string {
+  getPasswordError() {
     const control = this.registerForm.get('password');
     if (control?.hasError('required')) return 'Password is required';
     if (control?.hasError('minlength'))
@@ -145,7 +145,7 @@ export class RegisterComponent {
     return '';
   }
 
-  getConfirmPasswordError(): string {
+  getConfirmPasswordError() {
     const control = this.registerForm.get('confirmPassword');
     if (control?.hasError('required')) return 'Please confirm your password';
     if (this.registerForm.hasError('passwordMismatch') && control?.touched) {
@@ -154,11 +154,11 @@ export class RegisterComponent {
     return '';
   }
 
-  togglePasswordVisibility(): void {
+  togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
   }
 
-  toggleConfirmPasswordVisibility(): void {
+  toggleConfirmPasswordVisibility() {
     this.hideConfirmPassword = !this.hideConfirmPassword;
   }
 }

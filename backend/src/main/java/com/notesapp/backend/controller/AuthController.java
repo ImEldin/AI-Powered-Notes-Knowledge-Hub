@@ -1,12 +1,11 @@
 package com.notesapp.backend.controller;
 
+import ch.qos.logback.classic.spi.IThrowableProxy;
 import com.notesapp.backend.dto.ApiResponseDTO;
 import com.notesapp.backend.dto.AuthResponseDTO;
 import com.notesapp.backend.dto.LoginRequestDTO;
 import com.notesapp.backend.dto.RegisterRequestDTO;
-import com.notesapp.backend.exception.RefreshTokenInvalidException;
-import com.notesapp.backend.exception.RefreshTokenMissingException;
-import com.notesapp.backend.exception.UserNotFoundException;
+import com.notesapp.backend.exception.*;
 import com.notesapp.backend.model.User;
 import com.notesapp.backend.repository.UserRepository;
 import com.notesapp.backend.security.JwtTokenProvider;
@@ -17,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.HttpException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +32,42 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final CookieUtil cookieUtil;
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponseDTO> getCurrentUser(HttpServletRequest httpRequest) {
+
+        String token = cookieUtil.getJwtFromCookie(httpRequest);
+
+        if(token == null) {
+            throw new InvalidCredentialsException();
+        }
+
+        try{
+            if(!jwtTokenProvider.validateToken(token)) {
+                throw new InvalidJwtTokenException();
+            }
+
+            Long userId = jwtTokenProvider.getUserIdFromToken(token);
+
+            User user = userRepository.findById(userId).orElseThrow(
+                    () -> new UserNotFoundException()
+            );
+
+            AuthResponseDTO response = new AuthResponseDTO();
+            response.setMessage("User fetched successfully");
+            response.setId(userId);
+            response.setEmail(user.getEmail());
+            response.setFirstName(user.getFirstName());
+            response.setLastName(user.getLastName());
+            response.setRole(user.getRole());
+            response.setEmailVerified(user.isEmailVerified());
+
+            return ResponseEntity.ok(response);
+
+        }catch (Exception e) {
+            throw new InvalidJwtTokenException(e.getMessage());
+        }
+    }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(
@@ -117,6 +153,7 @@ public class AuthController {
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
+                user.getRole(),
                 user.isEmailVerified()
         ));
     }

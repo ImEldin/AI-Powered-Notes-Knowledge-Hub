@@ -78,6 +78,7 @@ public class AuthService {
                 savedUser.getEmail(),
                 savedUser.getFirstName(),
                 savedUser.getLastName(),
+                savedUser.getRole(),
                 savedUser.isEmailVerified()
         );
     }
@@ -144,6 +145,7 @@ public class AuthService {
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
+                user.getRole(),
                 user.isEmailVerified()
         );
 
@@ -195,6 +197,7 @@ public class AuthService {
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
+                user.getRole(),
                 user.isEmailVerified()
         );
     }

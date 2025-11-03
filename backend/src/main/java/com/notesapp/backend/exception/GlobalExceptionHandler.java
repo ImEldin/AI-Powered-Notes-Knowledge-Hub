@@ -188,6 +188,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponseDTO(ex.getMessage()));
     }
 
+    @ExceptionHandler(InvalidJwtTokenException.class)
+    public ResponseEntity<ApiResponseDTO> handleInvalidJwtToken(InvalidJwtTokenException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponseDTO(ex.getMessage()));
+    }
+
     //-------------------------------------------------------------------------------------------
 
     @ExceptionHandler(Exception.class)

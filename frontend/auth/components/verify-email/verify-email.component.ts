@@ -1,9 +1,10 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../service/auth.service';
 import { AuthStateService } from '../../service/auth-state.service';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { BrowserStorageService } from '../../../shared/services/browser-storage.service';
 
 @Component({
   selector: 'app-verify-email',
@@ -20,16 +21,14 @@ export class VerifyEmailComponent implements OnInit {
     private authState: AuthStateService,
     private router: Router,
     private notification: NotificationService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private storage: BrowserStorageService
   ) {}
 
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.email = sessionStorage.getItem('pendingVerificationEmail') || '';
+    this.email = this.storage.getSessionItem('pendingVerificationEmail') || '';
 
-      if (!this.email) {
-        this.router.navigate(['/auth/login']);
-      }
+    if (!this.email) {
+      this.router.navigate(['/auth/login']);
     }
   }
 
@@ -56,10 +55,13 @@ export class VerifyEmailComponent implements OnInit {
   logout() {
     this.authService.logout().subscribe({
       next: () => {
-        if (isPlatformBrowser(this.platformId)) {
-          sessionStorage.removeItem('pendingVerificationEmail');
-        }
-        this.authState.setAuthenticated(false);
+        this.authState.clearAuthState();
+        this.notification.success('Logged out successfully');
+        this.router.navigate(['/auth/login']);
+      },
+      error: () => {
+        this.authState.clearAuthState();
+        this.notification.error('Logged out locally');
         this.router.navigate(['/auth/login']);
       },
     });

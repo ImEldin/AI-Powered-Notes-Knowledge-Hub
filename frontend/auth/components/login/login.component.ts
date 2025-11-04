@@ -17,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../service/auth.service';
 import { AuthStateService } from '../../service/auth-state.service';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { BrowserStorageService } from '../../../shared/services/browser-storage.service';
 
 @Component({
   selector: 'app-login',
@@ -47,7 +48,8 @@ export class LoginComponent {
     private authService: AuthService,
     private authState: AuthStateService,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private storage: BrowserStorageService
   ) {
     this.loginForm = this.fb.group({
       email: [
@@ -75,15 +77,16 @@ export class LoginComponent {
             next: (user) => {
               this.authState.setAuthenticated(true);
               this.authState.setUserRole(user.role);
-              localStorage.setItem(
+              this.storage.setItem(
                 'emailVerified',
                 user.emailVerified.toString()
               );
+
               if (!user.emailVerified) {
                 this.notificationService.info(
                   'Please verify your email to continue'
                 );
-                sessionStorage.setItem(
+                this.storage.setSessionItem(
                   'pendingVerificationEmail',
                   this.loginForm.value.email
                 );
@@ -100,7 +103,8 @@ export class LoginComponent {
               this.notificationService.error(
                 'Failed to load user data. Please try logging in again.'
               );
-              this.authState.setAuthenticated(false);
+              this.authState.clearAuthState();
+              this.authState.setAuthInitialized(true);
             },
           });
         }, 100);

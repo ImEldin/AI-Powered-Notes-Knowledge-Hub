@@ -15,9 +15,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         const wasAuthenticated = authState.isLoggedIn();
 
-        authState.setAuthenticated(false);
-        localStorage.removeItem('emailVerified');
-        sessionStorage.removeItem('pendingVerificationEmail');
+        authState.clearAuthState();
 
         if (wasAuthenticated) {
           notificationService.error('Session expired. Please login again.');

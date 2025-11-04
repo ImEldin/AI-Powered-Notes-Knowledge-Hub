@@ -1,14 +1,12 @@
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { BrowserStorageService } from '../../shared/services/browser-storage.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthStateService {
-  private platformId = inject(PLATFORM_ID);
-  private isBrowser: boolean;
-
   private isAuthenticatedSubject: BehaviorSubject<boolean> =
     new BehaviorSubject<boolean>(false);
   public isAuthenticated$: Observable<boolean> =
@@ -23,14 +21,10 @@ export class AuthStateService {
     new BehaviorSubject<string>('USER');
   public userRole$: Observable<string> = this.userRoleSubject.asObservable();
 
-  constructor() {
-    this.isBrowser = isPlatformBrowser(this.platformId);
-
-    if (this.isBrowser) {
-      const storedRole = localStorage.getItem('userRole');
-      if (storedRole) {
-        this.userRoleSubject.next(storedRole);
-      }
+  constructor(private storage: BrowserStorageService) {
+    const storedRole = this.storage.getItem('userRole');
+    if (storedRole) {
+      this.userRoleSubject.next(storedRole);
     }
   }
 
@@ -52,9 +46,7 @@ export class AuthStateService {
 
   setUserRole(role: string) {
     this.userRoleSubject.next(role);
-    if (this.isBrowser) {
-      localStorage.setItem('userRole', role);
-    }
+    this.storage.setItem('userRole', role);
   }
 
   getUserRole() {
@@ -71,9 +63,7 @@ export class AuthStateService {
 
   clearRole() {
     this.userRoleSubject.next('USER');
-    if (this.isBrowser) {
-      localStorage.removeItem('userRole');
-    }
+    this.storage.removeItem('userRole');
   }
 
   clearAuthState() {
@@ -81,9 +71,7 @@ export class AuthStateService {
     this.setAuthInitialized(false);
     this.clearRole();
 
-    if (this.isBrowser) {
-      localStorage.removeItem('emailVerified');
-      sessionStorage.removeItem('pendingVerificationEmail');
-    }
+    this.storage.removeItem('emailVerified');
+    this.storage.removeSessionItem('pendingVerificationEmail');
   }
 }

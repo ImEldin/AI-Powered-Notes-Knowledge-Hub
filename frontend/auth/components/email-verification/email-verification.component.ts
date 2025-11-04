@@ -1,17 +1,11 @@
-import {
-  Component,
-  OnInit,
-  PLATFORM_ID,
-  Inject,
-  ChangeDetectorRef,
-  OnDestroy,
-} from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../service/auth.service';
 import { AuthStateService } from '../../service/auth-state.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { Subject, takeUntil } from 'rxjs';
+import { BrowserStorageService } from '../../../shared/services/browser-storage.service';
 
 @Component({
   selector: 'app-email-verification',
@@ -33,14 +27,10 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
     private authState: AuthStateService,
     private notification: NotificationService,
     private cdr: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private storage: BrowserStorageService
   ) {}
 
   ngOnInit() {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
@@ -84,13 +74,13 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
             'Email verified! Redirecting to dashboard...'
           );
 
-          sessionStorage.removeItem('pendingVerificationEmail');
+          this.storage.removeSessionItem('pendingVerificationEmail');
 
           this.authService.getCurrentUser().subscribe({
             next: (user) => {
               this.authState.setAuthenticated(true);
               this.authState.setUserRole(user.role);
-              localStorage.setItem(
+              this.storage.setItem(
                 'emailVerified',
                 user.emailVerified.toString()
               );

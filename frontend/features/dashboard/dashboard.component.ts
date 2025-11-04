@@ -21,11 +21,14 @@ export class DashboardComponent {
   logout() {
     this.authService.logout().subscribe({
       next: () => {
-        this.authState.setAuthenticated(false);
+        this.authState.clearAuthState();
+        this.notificationService.success('Logged out successfully');
         this.router.navigate(['/auth/login']);
       },
-      error: (error) => {
-        this.notificationService.error('Logout failed: ' + error.message);
+      error: () => {
+        this.authState.clearAuthState();
+        this.notificationService.error('Logged out locally');
+        this.router.navigate(['/auth/login']);
       },
     });
   }

@@ -75,4 +75,15 @@ export class AuthStateService {
       localStorage.removeItem('userRole');
     }
   }
+
+  clearAuthState() {
+    this.setAuthenticated(false);
+    this.setAuthInitialized(false);
+    this.clearRole();
+
+    if (this.isBrowser) {
+      localStorage.removeItem('emailVerified');
+      sessionStorage.removeItem('pendingVerificationEmail');
+    }
+  }
 }

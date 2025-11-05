@@ -67,7 +67,7 @@ public class EmailService {
             helper.setFrom(fromEmail, fromName);
             helper.setSubject("Reset Your Password - Notes App");
 
-            String resetUrl = "http://localhost:8080/reset-password?token=" + resetToken;
+            String resetUrl = "http://localhost:4200/auth/reset-password?token=" + resetToken;
 
             Context context = new Context();
             context.setVariable("firstName", firstName);

@@ -96,7 +96,7 @@ export class RegisterComponent {
           this.router.navigate(['/auth/verify-email']);
         }
       },
-      error: (error) => {
+      error: () => {
         this.notification.error('Registration failed. Please try again.');
         this.loading = false;
       },

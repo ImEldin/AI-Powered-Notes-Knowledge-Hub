@@ -71,7 +71,7 @@ export class LoginComponent {
     this.errorMessage = '';
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
+      next: () => {
         setTimeout(() => {
           this.authService.getCurrentUser().subscribe({
             next: (user) => {
@@ -109,8 +109,8 @@ export class LoginComponent {
           });
         }, 100);
       },
-      error: (error) => {
-        this.notificationService.error(error.error?.message || 'Login failed');
+      error: () => {
+        this.notificationService.error('Login failed');
         this.loading = false;
       },
     });

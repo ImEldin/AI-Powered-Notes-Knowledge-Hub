@@ -46,12 +46,12 @@ export class ForgotPasswordComponent {
     this.authService
       .forgotPassword({ email: this.forgotPasswordForm.value.email })
       .subscribe({
-        next: (response) => {
+        next: () => {
           this.loading = false;
           this.emailSent = true;
           this.notificationService.success('Password reset email sent');
         },
-        error: (error) => {
+        error: () => {
           this.loading = false;
           this.notificationService.error('Failed to send password reset email');
         },

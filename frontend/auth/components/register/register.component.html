@@ -2,7 +2,6 @@
   <h2>Register</h2>
 
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <!-- Email -->
     <div>
       <label>Email:</label>
       <input type="email" formControlName="email" />
@@ -16,7 +15,6 @@
       </div>
     </div>
 
-    <!-- First Name -->
     <div>
       <label>First Name:</label>
       <input type="text" formControlName="firstName" />
@@ -30,7 +28,6 @@
       </div>
     </div>
 
-    <!-- Last Name -->
     <div>
       <label>Last Name:</label>
       <input type="text" formControlName="lastName" />
@@ -44,7 +41,6 @@
       </div>
     </div>
 
-    <!-- Password -->
     <div>
       <label>Password:</label>
       <input
@@ -64,7 +60,6 @@
       </div>
     </div>
 
-    <!-- Confirm Password -->
     <div>
       <label>Confirm Password:</label>
       <input
@@ -79,7 +74,6 @@
       </div>
     </div>
 
-    <!-- Submit Button -->
     <button type="submit" [disabled]="loading || registerForm.invalid">
       <span *ngIf="loading">Loading...</span>
       <span *ngIf="!loading">Register</span>

@@ -36,17 +36,14 @@ export class VerifyEmailComponent implements OnInit {
     this.resending = true;
 
     this.authService.resendVerification({ email: this.email }).subscribe({
-      next: (response) => {
+      next: () => {
         this.notification.success(
-          response.message ||
-            'Verification email sent! Please check your inbox.'
+          'Verification email sent! Please check your inbox.'
         );
         this.resending = false;
       },
-      error: (error) => {
-        this.notification.error(
-          error.error?.message || 'Failed to resend email'
-        );
+      error: () => {
+        this.notification.error('Failed to resend email');
         this.resending = false;
       },
     });

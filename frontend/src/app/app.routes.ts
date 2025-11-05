@@ -7,6 +7,8 @@ import { VerifyEmailComponent } from '../../auth/components/verify-email/verify-
 import { EmailVerificationComponent } from '../../auth/components/email-verification/email-verification.component';
 import { emailVerifiedGuard } from '../../auth/guards/email-verified.guard';
 import { RoleGuard } from '../../auth/guards/role.guard';
+import { ForgotPasswordComponent } from '../../auth/components/forgot-password/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from '../../auth/components/reset-password/reset-password/reset-password.component';
 
 export const routes: Routes = [
   {
@@ -22,6 +24,11 @@ export const routes: Routes = [
     path: 'auth/register',
     component: RegisterComponent,
   },
+  {
+    path: 'auth/forgot-password',
+    component: ForgotPasswordComponent,
+  },
+  { path: 'auth/reset-password', component: ResetPasswordComponent },
   {
     path: 'auth/email-verification',
     component: EmailVerificationComponent,

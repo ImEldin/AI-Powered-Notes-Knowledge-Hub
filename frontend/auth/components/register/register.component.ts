@@ -97,9 +97,7 @@ export class RegisterComponent {
         }
       },
       error: (error) => {
-        this.notification.error(
-          error.error?.message || 'Registration failed. Please try again.'
-        );
+        this.notification.error('Registration failed. Please try again.');
         this.loading = false;
       },
       complete: () => {

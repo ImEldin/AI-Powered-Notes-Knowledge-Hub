@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -18,6 +18,7 @@ import { AuthService } from '../../service/auth.service';
 import { AuthStateService } from '../../service/auth-state.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { BrowserStorageService } from '../../../shared/services/browser-storage.service';
+import { environment } from '../../../src/environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -37,7 +38,7 @@ import { BrowserStorageService } from '../../../shared/services/browser-storage.
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
   errorMessage = '';
@@ -49,7 +50,8 @@ export class LoginComponent {
     private authState: AuthStateService,
     private router: Router,
     private notificationService: NotificationService,
-    private storage: BrowserStorageService
+    private storage: BrowserStorageService,
+    private ngZone: NgZone
   ) {
     this.loginForm = this.fb.group({
       email: [
@@ -58,6 +60,60 @@ export class LoginComponent {
       ],
       password: ['', [Validators.required, Validators.maxLength(64)]],
       rememberMe: [false],
+    });
+  }
+
+  ngOnInit() {
+    if (!this.storage.isBrowserPlatform()) return;
+    google.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      callback: (response: any) => this.handleGoogleResponse(response),
+    });
+
+    google.accounts.id.renderButton(document.getElementById('google-btn'), {
+      theme: 'outline',
+      size: 'large',
+      width: 260,
+    });
+  }
+
+  handleGoogleResponse(response: any) {
+    const idToken = response.credential;
+
+    this.loading = true;
+    this.ngZone.run(() => {
+      this.authService.googleLogin({ idToken }).subscribe({
+        next: () => {
+          this.authService.getCurrentUser().subscribe({
+            next: (user) => {
+              this.authState.setAuthenticated(true);
+              this.authState.setUserRole(user.role);
+              this.authState.setAuthInitialized(true);
+              this.storage.setItem(
+                'emailVerified',
+                user.emailVerified.toString()
+              );
+
+              this.notificationService.success('Login successful!');
+              this.router.navigate(['/dashboard']);
+
+              this.loading = false;
+            },
+            error: () => {
+              this.loading = false;
+              this.notificationService.error(
+                'Failed to load user data. Please try logging in again.'
+              );
+              this.authState.clearAuthState();
+              this.authState.setAuthInitialized(true);
+            },
+          });
+        },
+        error: () => {
+          this.loading = false;
+          this.notificationService.error('Google login failed.');
+        },
+      });
     });
   }
 

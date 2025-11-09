@@ -1,23 +1,62 @@
-<div class="verification-container">
+<div class="verification-wrapper">
   <div class="verification-card">
-    <div *ngIf="verifying" class="icon">
-      <span>⏳</span>
-      <h2>Verifying...</h2>
-      <p>{{ message }}</p>
+    <!-- Verifying -->
+    <div *ngIf="verifying" class="state-block">
+      <div class="loading-icon" aria-hidden="true">
+        <svg viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="20"></circle>
+        </svg>
+      </div>
+      <h2 class="title">Verifying...</h2>
+      <p class="message">{{ message }}</p>
     </div>
 
-    <div *ngIf="!verifying && success" class="icon success">
-      <span>✅</span>
-      <h2>Email Verified!</h2>
+    <!-- Success -->
+    <div *ngIf="!verifying && success" class="state-block">
+      <div class="success-icon" aria-hidden="true">
+        <svg
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h2 class="title">Email Verified!</h2>
       <p class="message">{{ message }}</p>
       <p class="redirect-info">Redirecting to dashboard...</p>
+      <button type="button" class="btn-primary" (click)="goToDashboard()">
+        Go to Dashboard
+      </button>
     </div>
 
-    <div *ngIf="!verifying && !success" class="icon error">
-      <span>❌</span>
-      <h2>Verification Failed</h2>
+    <!-- Error -->
+    <div *ngIf="!verifying && !success" class="state-block">
+      <div class="error-icon" aria-hidden="true">
+        <svg
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 2 2 20h20L12 2z"></path>
+          <line x1="12" y1="9" x2="12" y2="14" stroke-linecap="round"></line>
+          <circle cx="12" cy="17" r="1" fill="currentColor"></circle>
+        </svg>
+      </div>
+      <h2 class="title">Verification Failed</h2>
       <p class="message">{{ message }}</p>
-      <button type="button" (click)="goToLogin()">Back to Login</button>
+      <div class="actions">
+        <button type="button" class="btn-secondary" (click)="goToLogin()">
+          Back to Login
+        </button>
+      </div>
     </div>
   </div>
 </div>

@@ -87,7 +87,7 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
 
               setTimeout(() => {
                 this.router.navigate(['/dashboard']);
-              }, 2000);
+              }, 3000);
             },
             error: () => {
               this.notification.info('Please log in to continue');
@@ -111,5 +111,9 @@ export class EmailVerificationComponent implements OnInit, OnDestroy {
 
   goToLogin() {
     this.router.navigate(['/auth/login']);
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 }

@@ -52,7 +52,7 @@ export class ForgotPasswordComponent {
           this.notificationService.success('Password reset email sent');
           setTimeout(() => {
             this.router.navigate(['/auth/login']);
-          }, 500);
+          }, 5000);
         },
         error: () => {
           this.loading = false;

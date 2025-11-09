@@ -14,6 +14,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         const wasAuthenticated = authState.isLoggedIn();
+        const isAuthInitialized = authState.isAuthInitialized();
+        const isMeEndpoint = req.url.includes('/api/auth/me');
 
         authState.clearAuthState();
 
@@ -22,7 +24,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             error.error?.message || 'Session expired. Please login again.'
           );
           router.navigate(['/auth/login']);
-        } else {
+        } else if (!isMeEndpoint && isAuthInitialized) {
           const message = error.error?.message || 'Invalid email or password.';
           notificationService.error(message);
         }

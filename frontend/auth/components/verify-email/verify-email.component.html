@@ -1,29 +1,84 @@
-<div class="verify-email-container">
-  <div class="verify-email-card">
-    <h2>Verify Your Email</h2>
-
-    <p class="message">
-      We've sent a verification email to <strong>{{ email }}</strong>
-    </p>
-
-    <p class="instructions">
-      Please check your inbox and click the verification link to activate your
-      account.
-    </p>
-
-    <div class="actions">
-      <button type="button" (click)="resendEmail()" [disabled]="resending">
-        <span *ngIf="!resending">Resend Verification Email</span>
-        <span *ngIf="resending">Sending...</span>
-      </button>
-
-      <button type="button" class="secondary" (click)="logout()">
-        Back to Login
-      </button>
+<div class="verify-email-wrapper">
+  <div class="verify-email-brand">
+    <div class="brand-content">
+      <div class="logo-placeholder">
+        <div class="neon-gradient"></div>
+      </div>
+      <h2>AI-Powered Notes</h2>
+      <p>Your intelligent knowledge hub</p>
     </div>
+  </div>
 
-    <p class="help-text">
-      Didn't receive the email? Check your spam folder or click resend.
-    </p>
+  <div class="verify-email-container">
+    <div class="verify-email-card">
+      <div class="email-icon">
+        <svg
+          width="64"
+          height="64"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+          ></path>
+          <polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+      </div>
+
+      <h1 class="verify-email-title">Verify Your Email</h1>
+
+      <p class="message">
+        We've sent a verification email to<br />
+        <strong>{{ email }}</strong>
+      </p>
+
+      <p class="instructions">
+        Please check your inbox and click the verification link to activate your
+        account.
+      </p>
+
+      <div class="info-box">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="10" x2="12" y2="16" stroke-linecap="round"></line>
+          <circle
+            cx="12"
+            cy="7"
+            r="1"
+            fill="currentColor"
+            stroke="none"
+          ></circle>
+        </svg>
+        <span
+          >Didn't receive the email? Check your spam folder or click resend
+          below.</span
+        >
+      </div>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="resendEmail()"
+          [disabled]="resending"
+        >
+          <span *ngIf="!resending">Resend Verification Email</span>
+          <span *ngIf="resending">Sending...</span>
+        </button>
+
+        <button type="button" class="btn-secondary" (click)="logout()">
+          Back to Login
+        </button>
+      </div>
+    </div>
   </div>
 </div>

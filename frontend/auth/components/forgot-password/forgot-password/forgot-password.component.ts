@@ -50,6 +50,9 @@ export class ForgotPasswordComponent {
           this.loading = false;
           this.emailSent = true;
           this.notificationService.success('Password reset email sent');
+          setTimeout(() => {
+            this.router.navigate(['/auth/login']);
+          }, 500);
         },
         error: () => {
           this.loading = false;

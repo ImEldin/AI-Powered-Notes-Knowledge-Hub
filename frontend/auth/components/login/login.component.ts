@@ -170,9 +170,12 @@ export class LoginComponent implements OnInit {
           });
         }, 100);
       },
-      error: () => {
-        this.authError = 'Invalid email or password.';
-        this.notificationService.error('Login failed');
+      error: (error) => {
+        if (error.status === 401) {
+          this.authError = 'Invalid email or password.';
+        } else {
+          this.authError = null;
+        }
         this.loading = false;
       },
     });

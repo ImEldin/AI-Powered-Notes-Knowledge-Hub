@@ -18,19 +18,32 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         authState.clearAuthState();
 
         if (wasAuthenticated) {
-          notificationService.error('Session expired. Please login again.');
+          notificationService.error(
+            error.error?.message || 'Session expired. Please login again.'
+          );
           router.navigate(['/auth/login']);
+        } else {
+          const message = error.error?.message || 'Invalid email or password.';
+          notificationService.error(message);
         }
       }
 
       if (error.status === 403) {
         notificationService.error(
-          'You do not have permission to access this resource.'
+          error.error?.message ||
+            'You do not have permission to access this resource.'
         );
       }
 
+      if (error.status === 409) {
+        const message =
+          error.error?.message || 'A conflict occurred. Please try again.';
+        notificationService.error(message);
+      }
+
       if (error.status >= 500) {
-        notificationService.error('Server error. Please try again later.');
+        error.error?.message ||
+          notificationService.error('Server error. Please try again later.');
       }
 
       return throwError(() => error);

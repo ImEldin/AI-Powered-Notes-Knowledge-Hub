@@ -41,7 +41,7 @@ import { environment } from '../../../src/environments/environment';
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading = false;
-  errorMessage = '';
+  authError: string | null = null;
   hidePassword = true;
 
   constructor(
@@ -73,7 +73,10 @@ export class LoginComponent implements OnInit {
     google.accounts.id.renderButton(document.getElementById('google-btn'), {
       theme: 'outline',
       size: 'large',
-      width: 260,
+      width: 375,
+      text: 'signin_with',
+      shape: 'rectangular',
+      logo_alignment: 'left',
     });
   }
 
@@ -111,6 +114,7 @@ export class LoginComponent implements OnInit {
         },
         error: () => {
           this.loading = false;
+          this.authError = 'Google login failed.';
           this.notificationService.error('Google login failed.');
         },
       });
@@ -124,7 +128,7 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
-    this.errorMessage = '';
+    this.clearAuthError();
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
@@ -156,6 +160,7 @@ export class LoginComponent implements OnInit {
             },
             error: () => {
               this.loading = false;
+              this.authError = 'Login failed. Please try again.';
               this.notificationService.error(
                 'Failed to load user data. Please try logging in again.'
               );
@@ -166,6 +171,7 @@ export class LoginComponent implements OnInit {
         }, 100);
       },
       error: () => {
+        this.authError = 'Invalid email or password.';
         this.notificationService.error('Login failed');
         this.loading = false;
       },
@@ -199,5 +205,9 @@ export class LoginComponent implements OnInit {
 
   togglePasswordVisibility() {
     this.hidePassword = !this.hidePassword;
+  }
+
+  clearAuthError() {
+    this.authError = null;
   }
 }

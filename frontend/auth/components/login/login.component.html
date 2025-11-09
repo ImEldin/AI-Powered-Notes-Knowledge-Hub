@@ -1,59 +1,148 @@
-<div class="login-container">
-  <h2>Login</h2>
-
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div>
-      <label>Email:</label>
-      <input type="email" formControlName="email" />
-      <div
-        *ngIf="
-          loginForm.get('email')?.invalid && loginForm.get('email')?.touched
-        "
-      >
-        {{ getEmailError() }}
+<div class="login-wrapper">
+  <div class="login-brand">
+    <div class="brand-content">
+      <div class="logo-placeholder">
+        <div class="neon-gradient"></div>
       </div>
+      <h2>AI-Powered Notes</h2>
+      <p>Your intelligent knowledge hub</p>
     </div>
+  </div>
 
-    <div>
-      <label>Password:</label>
-      <input
-        [type]="hidePassword ? 'password' : 'text'"
-        formControlName="password"
-      />
-      <button type="button" (click)="togglePasswordVisibility()">
-        {{ hidePassword ? "Show" : "Hide" }}
-      </button>
+  <div class="login-container">
+    <div class="login-card">
+      <h1 class="login-title">Log in to your account</h1>
+      <p class="login-subtitle">Connect to Notes with:</p>
+
       <div
-        *ngIf="
-          loginForm.get('password')?.invalid &&
-          loginForm.get('password')?.touched
-        "
+        *ngIf="authError"
+        class="auth-error-banner"
+        role="alert"
+        aria-live="assertive"
       >
-        {{ getPasswordError() }}
+        <div class="error-icon">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linejoin="round"
+          >
+            <path d="M12 2 2 20h20L12 2z"></path>
+            <line x1="12" y1="9" x2="12" y2="14" stroke-linecap="round"></line>
+            <circle cx="12" cy="17" r="1" fill="currentColor"></circle>
+          </svg>
+        </div>
+        <span class="error-text">{{ authError }}</span>
+        <button
+          type="button"
+          class="banner-close"
+          (click)="clearAuthError()"
+          aria-label="Dismiss error"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+            <line x1="6" y1="18" x2="18" y2="6"></line>
+          </svg>
+        </button>
       </div>
+
+      <div class="google-signin-wrapper">
+        <div class="gsi-outer gsi-480">
+          <div id="google-btn" class="gsi-scale"></div>
+        </div>
+      </div>
+
+      <div class="divider">
+        <span>OR LOG IN WITH YOUR EMAIL</span>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.error]="
+              loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+            "
+          />
+          <span
+            class="error-message"
+            *ngIf="
+              loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+            "
+          >
+            {{ getEmailError() }}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="password">Password</label>
+            <a routerLink="/auth/forgot-password" class="forgot-link"
+              >Forgot Password?</a
+            >
+          </div>
+          <div class="password-input-wrapper">
+            <input
+              id="password"
+              [type]="hidePassword ? 'password' : 'text'"
+              formControlName="password"
+              placeholder="Enter your password"
+              [class.error]="
+                loginForm.get('password')?.invalid &&
+                loginForm.get('password')?.touched
+              "
+            />
+            <button
+              type="button"
+              class="toggle-password"
+              (click)="togglePasswordVisibility()"
+            >
+              <span *ngIf="hidePassword">👁️</span>
+              <span *ngIf="!hidePassword">👁️‍🗨️</span>
+            </button>
+          </div>
+          <span
+            class="error-message"
+            *ngIf="
+              loginForm.get('password')?.invalid &&
+              loginForm.get('password')?.touched
+            "
+          >
+            {{ getPasswordError() }}
+          </span>
+        </div>
+
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="loading || loginForm.invalid"
+        >
+          <span *ngIf="!loading">Log in</span>
+          <span *ngIf="loading">Logging in...</span>
+        </button>
+      </form>
+
+      <p class="signup-text">
+        New to Notes?
+        <a routerLink="/auth/register" class="signup-link"
+          >Sign up for an account</a
+        >
+      </p>
     </div>
-
-    <div>
-      <label>
-        <input type="checkbox" formControlName="rememberMe" />
-        Remember me
-      </label>
-    </div>
-
-    <div *ngIf="errorMessage" style="color: red">
-      {{ errorMessage }}
-    </div>
-
-    <button type="submit" [disabled]="loading">
-      <span *ngIf="loading">Loading...</span>
-      <span *ngIf="!loading">Login</span>
-    </button>
-  </form>
-
-  <div id="google-btn" class="google-btn"></div>
-
-  <p>Don't have an account? <a routerLink="/auth/register">Sign up</a></p>
-  <a routerLink="/auth/forgot-password" class="forgot-password">
-    Forgot password?
-  </a>
+  </div>
 </div>

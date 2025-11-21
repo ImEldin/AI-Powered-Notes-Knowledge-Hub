@@ -81,14 +81,6 @@ Auth
 - Config: uses app DB env vars (spring.flyway.url/user/password)
 - Baseline existing DB: set spring.flyway.baseline-on-migrate=true for first run if schema exists (then remove)
 
-## Database & Migrations (Flyway)
-
-- Location: backend/src/main/resources/db/migration
-- Naming: V1__init.sql, V2__add_users_table.sql, V3__... (V<version>__<desc>.sql)
-- Run mode: Flyway runs automatically on Spring Boot startup (spring.flyway.enabled=true)
-- Config: uses app DB env vars (spring.flyway.url/user/password)
-- Baseline existing DB: set spring.flyway.baseline-on-migrate=true for first run if schema exists (then remove)
-
 Add a new migration
 1) Create a new SQL file in db/migration with next version number.
 2) Start backend; Flyway applies it on startup.

@@ -92,7 +92,7 @@ Prereqs
 - Java 17+, Maven
 - Node 18+, Angular CLI
 - PostgreSQL (configure in backend)
-- SMTP creds for email (or use MailHog/Dev service)
+- SMTP creds for email 
 
 Backend
 ```bash
